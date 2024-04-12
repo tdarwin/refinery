@@ -12,8 +12,7 @@ type App struct {
 	Config         config.Config     `inject:""`
 	Logger         logger.Logger     `inject:""`
 	IncomingRouter route.Router      `inject:"inline"`
-	PeerRouter     route.Router      `inject:"inline"`
-	Collector      collect.Collector `inject:""`
+	Collector      collect.Collector `inject:"collector"`
 	Metrics        metrics.Metrics   `inject:"genericMetrics"`
 
 	// Version is the build ID for Refinery so that the running process may answer
@@ -30,7 +29,6 @@ func (a *App) Start() error {
 	a.Metrics.Register("rule_config_hash", "gauge")
 
 	a.IncomingRouter.SetVersion(a.Version)
-	a.PeerRouter.SetVersion(a.Version)
 
 	a.Config.RegisterReloadCallback(func(configHash, rulesHash string) {
 		if a.Logger != nil {
@@ -51,8 +49,7 @@ func (a *App) Start() error {
 
 	// launch our main routers to listen for incoming event traffic from both peers
 	// and external sources
-	a.IncomingRouter.LnS("incoming")
-	a.PeerRouter.LnS("peer")
+	a.IncomingRouter.LnS()
 
 	return nil
 }
