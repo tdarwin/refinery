@@ -3,7 +3,6 @@ package route
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -19,6 +18,7 @@ import (
 	"github.com/honeycombio/refinery/collect"
 	"github.com/honeycombio/refinery/collect/cache"
 	"github.com/honeycombio/refinery/config"
+	"github.com/honeycombio/refinery/internal/health"
 	"github.com/honeycombio/refinery/internal/peer"
 	"github.com/honeycombio/refinery/logger"
 	"github.com/honeycombio/refinery/metrics"
@@ -37,7 +37,6 @@ import (
 	"github.com/honeycombio/refinery/sharder"
 	"github.com/klauspost/compress/zstd"
 	"github.com/vmihailenco/msgpack/v5"
-	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -504,6 +503,7 @@ func TestDependencyInjection(t *testing.T) {
 		&inject.Object{Value: &collect.MockStressReliever{}, Name: "stressRelief"},
 		&inject.Object{Value: &peer.MockPeers{}},
 		&inject.Object{Value: &cache.CuckooSentCache{}},
+		&inject.Object{Value: &health.Health{}},
 	)
 	if err != nil {
 		t.Error(err)
