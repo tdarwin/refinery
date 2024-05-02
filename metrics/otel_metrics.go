@@ -259,6 +259,10 @@ func (o *OTelMetrics) Count(name string, val interface{}) {
 		f := ConvertNumeric(val)
 		ctr.Add(context.Background(), int64(f))
 		o.values[name] += f
+	} else if ud, ok := o.updowns[name]; ok {
+		f := ConvertNumeric(val)
+		ud.Add(context.Background(), int64(f))
+		o.values[name] += f
 	}
 }
 
@@ -289,6 +293,17 @@ func (o *OTelMetrics) Down(name string) {
 
 	if ud, ok := o.updowns[name]; ok {
 		ud.Add(context.Background(), -1)
+		o.values[name]--
+	}
+}
+
+func (o *OTelMetrics) Add(name string, val interface{}) {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+
+	if ud, ok := o.updowns[name]; ok {
+		f := ConvertNumeric(val)
+		ud.Add(context.Background(), int64(f))
 		o.values[name]--
 	}
 }
